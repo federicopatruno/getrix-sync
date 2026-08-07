@@ -8,7 +8,7 @@
  * Requires PHP: 8.2
  * Requires at least: 6.8
  * Author: Federico Patruno
- * License: GPL2
+ * License: GPL-2.0-or-later
  */
 
 declare(strict_types=1);
@@ -17,4 +17,4 @@ defined('ABSPATH') || exit;
 
 require __DIR__ . '/vendor/autoload.php';
 
-GetrixSync\Plugin::boot();
+\GetrixSync\Core\Plugin::boot();

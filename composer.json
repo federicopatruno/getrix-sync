@@ -4,7 +4,10 @@
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "require": {
-        "php": "^8.2"
+        "php": "^8.2",
+        "guzzlehttp/guzzle": "^7.9",
+        "monolog/monolog": "^3.9",
+        "nesbot/carbon": "^3.10"
     },
     "autoload": {
         "psr-4": {
