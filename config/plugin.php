@@ -14,6 +14,8 @@ return [
     'version' => '0.1.0',
 
     'feed' => [
+        'url' => 'https://studiostilo.it/wp-content/feeds/B84A402B-0D84-4D26-BFDD-4EE8BB05605E.xml',
+        'xsd_url' => 'http://feed.getrix.it/xml/feed_3_1_0.xsd',
         'timeout' => 60,
         'connect_timeout' => 15,
     ],
