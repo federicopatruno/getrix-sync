@@ -7,6 +7,7 @@ namespace GetrixSync\Core;
 use GetrixSync\WordPress\PropertyPostType;
 use GetrixSync\WordPress\WordPressServiceProvider;
 use GetrixSync\WordPress\PropertyMeta;
+use GetrixSync\Acf\PropertyFields;
 
 final class Plugin
 {
@@ -24,6 +25,7 @@ final class Plugin
             ->addProvider(new WordPressServiceProvider())
             ->addProvider(new PropertyPostType())
             ->addProvider(new PropertyMeta())
+            ->addProvider(new PropertyFields())
             ->run();
     }
 
