@@ -11,7 +11,17 @@ final class WordPressServiceProvider implements ServiceProvider
 {
     public function register(Container $container): void
     {
-        // WordPress services will be registered here.
+        $container->singleton(
+            PropertyRepository::class,
+            static fn(): PropertyRepository =>
+            new PropertyRepository()
+        );
+
+        $container->singleton(
+            PropertyAcfWriter::class,
+            static fn(): PropertyAcfWriter =>
+            new PropertyAcfWriter()
+        );
     }
 
     public function boot(Container $container): void
