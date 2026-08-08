@@ -9,6 +9,7 @@ use GetrixSync\WordPress\WordPressServiceProvider;
 use GetrixSync\WordPress\PropertyMeta;
 use GetrixSync\Acf\PropertyFields;
 use GetrixSync\Feed\FeedServiceProvider;
+use GetrixSync\Domain\DomainServiceProvider;
 
 final class Plugin
 {
@@ -28,6 +29,7 @@ final class Plugin
             ->addProvider(new PropertyMeta())
             ->addProvider(new PropertyFields())
             ->addProvider(new FeedServiceProvider())
+            ->addProvider(new DomainServiceProvider())
             ->run();
     }
 

@@ -7,6 +7,8 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 use GetrixSync\Feed\FeedDownloader;
 use GetrixSync\Feed\GetrixParser;
 use GetrixSync\Feed\GetrixValidator;
+use GetrixSync\Domain\GetrixPropertyMapper;
+
 
 $downloader = new FeedDownloader();
 
@@ -39,3 +41,20 @@ if ($feed->properties !== []) {
     echo 'Prezzo: ' . ($property['prezzo'] ?? '') . PHP_EOL;
     echo 'Immagini: ' . count($property['immagini'] ?? []) . PHP_EOL;
 }
+
+$mapper = new GetrixPropertyMapper();
+
+$mapped = $mapper->map(
+    $feed->properties[0]
+);
+
+echo PHP_EOL;
+echo 'Mapped property:' . PHP_EOL;
+echo 'Getrix ID: ' . $mapped->getrixId . PHP_EOL;
+echo 'Title: ' . $mapped->title() . PHP_EOL;
+echo 'Description length: '
+    . strlen($mapped->description())
+    . PHP_EOL;
+echo 'Images: '
+    . count($mapped->images)
+    . PHP_EOL;
