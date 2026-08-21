@@ -1,0 +1,475 @@
+GETRIX ACF STRUCTURE DRY RUN
+============================
+
+Top-level fields: 57
+
+codice_nazione                 | text               | required=yes
+codice_comune                  | text               | required=yes
+comune                         | text               | required=yes
+quartiere                      | text               | required=no
+quartiere_zona                 | text               | required=no
+localita                       | text               | required=no
+zona                           | text               | required=no
+strada                         | text               | required=no
+indirizzo                      | text               | required=no
+civico                         | text               | required=no
+pubblica_civico                | true_false         | required=no
+cap                            | text               | required=no
+pubblica_indirizzo             | true_false         | required=no
+latitudine                     | number             | required=no
+longitudine                    | number             | required=no
+zoom                           | number             | required=no
+pubblica_mappa                 | true_false         | required=no
+categoria                      | select             | required=yes
+contratto                      | select             | required=yes
+tipologia                      | text               | required=yes
+nr_locali                      | number             | required=yes
+nr_vani                        | number             | required=no
+prezzo                         | number             | required=yes
+trattativa_riservata           | true_false         | required=no
+mq_superficie                  | number             | required=yes
+riferimento                    | text               | required=no
+spese_mensili                  | number             | required=no
+tipo_spese                     | select             | required=no
+durata_contratto               | select             | required=no
+tipo_proprieta                 | select             | required=no
+situazione_immobile            | select             | required=no
+asta                           | true_false         | required=no
+pregio                         | true_false         | required=no
+reddito                        | true_false         | required=no
+url_planimetria                | text               | required=no
+url_virtual_tour               | text               | required=no
+url_visual_tour                | text               | required=no
+url_video                      | text               | required=no
+id_you_tube_1                  | text               | required=no
+id_you_tube_2                  | text               | required=no
+id_you_tube_3                  | text               | required=no
+id_you_tube_4                  | text               | required=no
+id_cantiere_soluzione          | number             | required=no
+permuta                        | true_false         | required=no
+anche_in_affitto               | true_false         | required=no
+prezzo_affitto                 | number             | required=no
+trattativa_riservata_affitto   | true_false         | required=no
+data_inserimento               | date_time_picker   | required=yes
+data_modifica                  | date_time_picker   | required=yes
+descrizioni                    | repeater           | required=yes | sub-fields=1
+residenziale                   | group              | required=no | sub-fields=105
+commerciale                    | group              | required=no | sub-fields=115
+attivita                       | group              | required=no | sub-fields=60
+terreno                        | group              | required=no | sub-fields=41
+vacanze                        | group              | required=no | sub-fields=119
+immagini                       | repeater           | required=no | sub-fields=1
+allegati                       | repeater           | required=no | sub-fields=1
+
+Total sub-fields: 443
+Status: OK
+
+===== MQSuperficie =====
+Array
+(
+    [name] => MQSuperficie
+    [type] => xs:nonNegativeInteger
+    [base_type] => 
+    [min_occurs] => 1
+    [max_occurs] => 1
+    [nillable] => 
+    [documentation] => 
+    [attributes] => Array
+        (
+        )
+
+    [children] => Array
+        (
+        )
+
+    [enumeration] => Array
+        (
+        )
+
+)
+
+===== IDCantiereSoluzione =====
+Array
+(
+    [name] => IDCantiereSoluzione
+    [type] => xs:nonNegativeInteger
+    [base_type] => 
+    [min_occurs] => 0
+    [max_occurs] => 1
+    [nillable] => 
+    [documentation] => 
+    [attributes] => Array
+        (
+        )
+
+    [children] => Array
+        (
+        )
+
+    [enumeration] => Array
+        (
+        )
+
+)
+
+===== DataInserimento =====
+Array
+(
+    [name] => DataInserimento
+    [type] => xs:dateTime
+    [base_type] => 
+    [min_occurs] => 1
+    [max_occurs] => 1
+    [nillable] => 
+    [documentation] => 
+    [attributes] => Array
+        (
+        )
+
+    [children] => Array
+        (
+        )
+
+    [enumeration] => Array
+        (
+        )
+
+)
+
+===== DataModifica =====
+Array
+(
+    [name] => DataModifica
+    [type] => xs:dateTime
+    [base_type] => 
+    [min_occurs] => 1
+    [max_occurs] => 1
+    [nillable] => 
+    [documentation] => 
+    [attributes] => Array
+        (
+        )
+
+    [children] => Array
+        (
+        )
+
+    [enumeration] => Array
+        (
+        )
+
+)
+
+===== Descrizione =====
+Array
+(
+    [name] => Descrizione
+    [type] => 
+    [base_type] => 
+    [min_occurs] => 1
+    [max_occurs] => unbounded
+    [nillable] => 
+    [documentation] => 
+    [attributes] => Array
+        (
+            [Lingua] => Array
+                (
+                    [type] => 
+                    [use] => required
+                    [default] => 
+                )
+
+        )
+
+    [children] => Array
+        (
+            [Titolo] => Array
+                (
+                    [name] => Titolo
+                    [type] => string100
+                    [base_type] => xs:string
+                    [min_occurs] => 0
+                    [max_occurs] => 1
+                    [nillable] => 
+                    [documentation] => 
+                    [attributes] => Array
+                        (
+                        )
+
+                    [children] => Array
+                        (
+                        )
+
+                    [enumeration] => Array
+                        (
+                        )
+
+                )
+
+            [Testo] => Array
+                (
+                    [name] => Testo
+                    [type] => xs:string
+                    [base_type] => 
+                    [min_occurs] => 1
+                    [max_occurs] => 1
+                    [nillable] => 
+                    [documentation] => 
+                    [attributes] => Array
+                        (
+                        )
+
+                    [children] => Array
+                        (
+                        )
+
+                    [enumeration] => Array
+                        (
+                        )
+
+                )
+
+            [TestoBreve] => Array
+                (
+                    [name] => TestoBreve
+                    [type] => xs:string
+                    [base_type] => 
+                    [min_occurs] => 0
+                    [max_occurs] => 1
+                    [nillable] => 
+                    [documentation] => 
+                    [attributes] => Array
+                        (
+                        )
+
+                    [children] => Array
+                        (
+                        )
+
+                    [enumeration] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+    [enumeration] => Array
+        (
+        )
+
+)
+
+===== Immagine =====
+Array
+(
+    [name] => Immagine
+    [type] => 
+    [base_type] => 
+    [min_occurs] => 1
+    [max_occurs] => unbounded
+    [nillable] => 
+    [documentation] => 
+    [attributes] => Array
+        (
+            [IDImmagine] => Array
+                (
+                    [type] => xs:long
+                    [use] => required
+                    [default] => 
+                )
+
+            [Tipo] => Array
+                (
+                    [type] => 
+                    [use] => optional
+                    [default] => 
+                )
+
+        )
+
+    [children] => Array
+        (
+            [URL] => Array
+                (
+                    [name] => URL
+                    [type] => 
+                    [base_type] => xs:string
+                    [min_occurs] => 1
+                    [max_occurs] => 1
+                    [nillable] => 
+                    [documentation] => 
+                    [attributes] => Array
+                        (
+                        )
+
+                    [children] => Array
+                        (
+                        )
+
+                    [enumeration] => Array
+                        (
+                        )
+
+                )
+
+            [DataModifica] => Array
+                (
+                    [name] => DataModifica
+                    [type] => xs:dateTime
+                    [base_type] => 
+                    [min_occurs] => 1
+                    [max_occurs] => 1
+                    [nillable] => 
+                    [documentation] => 
+                    [attributes] => Array
+                        (
+                        )
+
+                    [children] => Array
+                        (
+                        )
+
+                    [enumeration] => Array
+                        (
+                        )
+
+                )
+
+            [Titolo] => Array
+                (
+                    [name] => Titolo
+                    [type] => string50
+                    [base_type] => xs:string
+                    [min_occurs] => 0
+                    [max_occurs] => 1
+                    [nillable] => 
+                    [documentation] => 
+                    [attributes] => Array
+                        (
+                        )
+
+                    [children] => Array
+                        (
+                        )
+
+                    [enumeration] => Array
+                        (
+                        )
+
+                )
+
+            [Posizione] => Array
+                (
+                    [name] => Posizione
+                    [type] => 
+                    [base_type] => xs:unsignedByte
+                    [min_occurs] => 0
+                    [max_occurs] => 1
+                    [nillable] => 
+                    [documentation] => 
+                    [attributes] => Array
+                        (
+                        )
+
+                    [children] => Array
+                        (
+                        )
+
+                    [enumeration] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+    [enumeration] => Array
+        (
+        )
+
+)
+
+===== Allegato =====
+Array
+(
+    [name] => Allegato
+    [type] => 
+    [base_type] => 
+    [min_occurs] => 1
+    [max_occurs] => unbounded
+    [nillable] => 
+    [documentation] => 
+    [attributes] => Array
+        (
+            [Lingua] => Array
+                (
+                    [type] => 
+                    [use] => required
+                    [default] => 
+                )
+
+            [IDAllegato] => Array
+                (
+                    [type] => xs:positiveInteger
+                    [use] => required
+                    [default] => 
+                )
+
+        )
+
+    [children] => Array
+        (
+            [URLAllegato] => Array
+                (
+                    [name] => URLAllegato
+                    [type] => 
+                    [base_type] => xs:string
+                    [min_occurs] => 1
+                    [max_occurs] => 1
+                    [nillable] => 
+                    [documentation] => 
+                    [attributes] => Array
+                        (
+                        )
+
+                    [children] => Array
+                        (
+                        )
+
+                    [enumeration] => Array
+                        (
+                        )
+
+                )
+
+            [Titolo] => Array
+                (
+                    [name] => Titolo
+                    [type] => string50
+                    [base_type] => xs:string
+                    [min_occurs] => 1
+                    [max_occurs] => 1
+                    [nillable] => 
+                    [documentation] => 
+                    [attributes] => Array
+                        (
+                        )
+
+                    [children] => Array
+                        (
+                        )
+
+                    [enumeration] => Array
+                        (
+                        )
+
+                )
+
+        )
+
+    [enumeration] => Array
+        (
+        )
+
+)
