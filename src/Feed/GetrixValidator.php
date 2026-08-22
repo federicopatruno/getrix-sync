@@ -17,13 +17,7 @@ final class GetrixValidator
             );
         }
 
-        $xsdUrl = (string) Config::get('feed.xsd_url', '');
-
-        if ($xsdUrl === '') {
-            throw new RuntimeException(
-                'Getrix XSD URL is not configured.'
-            );
-        }
+        $xsdSource = $this->resolveXsdSource();
 
         $document = new \DOMDocument();
 
@@ -38,7 +32,7 @@ final class GetrixValidator
                 );
             }
 
-            if (!$document->schemaValidate($xsdUrl)) {
+            if (!$document->schemaValidate($xsdSource)) {
                 throw new RuntimeException(
                     $this->formatErrors(
                         'Getrix XML failed XSD validation'
@@ -49,6 +43,34 @@ final class GetrixValidator
             libxml_use_internal_errors($previous);
             libxml_clear_errors();
         }
+    }
+
+    /**
+     * Prefer the XSD bundled with the plugin (no network dependency
+     * on every sync run); fall back to the remote URL if the local
+     * copy is missing or disabled via config.
+     */
+    private function resolveXsdSource(): string
+    {
+        $localPath = Config::get('feed.xsd_local_path');
+
+        if (
+            is_string($localPath)
+            && $localPath !== ''
+            && is_readable($localPath)
+        ) {
+            return $localPath;
+        }
+
+        $xsdUrl = (string) Config::get('feed.xsd_url', '');
+
+        if ($xsdUrl === '') {
+            throw new RuntimeException(
+                'Neither a local nor a remote Getrix XSD is configured.'
+            );
+        }
+
+        return $xsdUrl;
     }
 
     private function formatErrors(string $prefix): string

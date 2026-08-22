@@ -98,19 +98,26 @@ final class GetrixParser
             (string) ($property['IDImmobile'] ?? '')
         );
 
-        foreach ($property->children() as $element) {
-            $name = $element->getName();
+        /*
+         * A field name is only turned into a list when it actually
+         * occurs more than once. Counting occurrences up-front (as
+         * opposed to inspecting the shape of the first parsed value)
+         * is required because a *single* repeated element can itself
+         * parse to an array (e.g. an element with attributes or
+         * children), which would otherwise be indistinguishable from
+         * "already collected into a list".
+         */
+        $counts = $this->childNameCounts(
+            $property->children()
+        );
 
-            /*
-             * Ignore an empty XML element only when it has no
-             * attributes and no meaningful children.
-             */
-            $value = $this->parseElement(
-                $element
+        foreach ($property->children() as $element) {
+            $fieldName = $this->fieldName(
+                $element->getName()
             );
 
-            $fieldName = $this->fieldName(
-                $name
+            $value = $this->parseElement(
+                $element
             );
 
             /*
@@ -130,16 +137,7 @@ final class GetrixParser
                 );
             }
 
-            /*
-             * Repeated XML elements become arrays.
-             */
-            if (array_key_exists($fieldName, $result)) {
-                if (!is_array($result[$fieldName])) {
-                    $result[$fieldName] = [
-                        $result[$fieldName],
-                    ];
-                }
-
+            if (($counts[$fieldName] ?? 1) > 1) {
                 $result[$fieldName][] = $value;
                 continue;
             }
@@ -167,6 +165,10 @@ final class GetrixParser
             );
         }
 
+        $counts = $this->childNameCounts(
+            $children
+        );
+
         $result = [];
 
         foreach ($children as $child) {
@@ -179,17 +181,13 @@ final class GetrixParser
             );
 
             /*
-             * Preserve repeated elements.
+             * Preserve repeated elements. A field name is only
+             * treated as a list when it genuinely occurs more than
+             * once; see the note in parseProperty() for why we
+             * cannot rely on is_array($result[$childName]) here.
              */
-            if (array_key_exists($childName, $result)) {
-                if (!is_array($result[$childName])) {
-                    $result[$childName] = [
-                        $result[$childName],
-                    ];
-                }
-
+            if (($counts[$childName] ?? 1) > 1) {
                 $result[$childName][] = $childValue;
-
                 continue;
             }
 
@@ -197,18 +195,47 @@ final class GetrixParser
         }
 
         /*
-         * If the element has attributes, preserve them inside
-         * the parsed structure.
+         * If the element has attributes, flatten them directly into
+         * this element's own result (e.g. <Immagine IDImmagine="1"
+         * Tipo="F"> -> ['id_immagine' => 1, 'tipo' => 'F', ...]),
+         * so the mapper can address them without knowing about the
+         * top-level "<Elemento>_<attributo>" convention used by
+         * parseProperty().
          */
         $attributes = $this->parseAttributes(
             $element
         );
 
         if ($attributes !== []) {
-            $result['_attributes'] = $attributes;
+            $this->mergeOwnAttributes(
+                $result,
+                $attributes
+            );
         }
 
         return $result;
+    }
+
+    /**
+     * Count how many times each (already snake_cased) child element
+     * name occurs among a node's direct children.
+     *
+     * @return array<string, int>
+     */
+    private function childNameCounts(
+        SimpleXMLElement $children
+    ): array {
+        $counts = [];
+
+        foreach ($children as $child) {
+            $name = $this->fieldName(
+                $child->getName()
+            );
+
+            $counts[$name] = ($counts[$name] ?? 0) + 1;
+        }
+
+        return $counts;
     }
 
     /**
@@ -404,6 +431,35 @@ final class GetrixParser
             }
 
             $result[$fieldName . '_' . $attributeName] = $this->castAttribute(
+                $value
+            );
+        }
+    }
+
+    /**
+     * Flatten an element's own attributes directly into its parsed
+     * result, using their plain snake_case name (no prefix).
+     *
+     * Example:
+     *
+     * <Immagine IDImmagine="1" Tipo="F">...</Immagine>
+     *
+     * merges 'id_immagine' => 1 and 'tipo' => 'F' into the Immagine's
+     * own result array.
+     *
+     * @param array<string, mixed> $result
+     * @param array<string, string> $attributes
+     */
+    private function mergeOwnAttributes(
+        array &$result,
+        array $attributes
+    ): void {
+        foreach ($attributes as $name => $value) {
+            $attributeName = $this->fieldName(
+                $name
+            );
+
+            $result[$attributeName] = $this->castAttribute(
                 $value
             );
         }

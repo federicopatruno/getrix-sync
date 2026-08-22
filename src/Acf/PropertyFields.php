@@ -405,6 +405,17 @@ final class PropertyFields implements ServiceProvider
             ),
 
             $this->tab(
+                'tab_terreno',
+                'Terreno'
+            ),
+
+            $this->trueFalse(
+                'field_costruzione_abitativa',
+                'costruzione_abitativa',
+                'Costruzione Abitativa'
+            ),
+
+            $this->tab(
                 'tab_immagini',
                 'Immagini'
             ),

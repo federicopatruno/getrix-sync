@@ -46,11 +46,21 @@ $property = [
     'data_inserimento' => '2025-04-28T13:30:10',
     'data_modifica' => '2025-04-28T13:31:07',
 
+    /*
+     * This mirrors the actual shape produced by GetrixParser: a
+     * single <Descrizione>/<Immagine> parses to an associative item
+     * under 'descrizione'/'immagine', while more than one parses to
+     * a zero-indexed list under the same key. GetrixPropertyMapper
+     * normalizes both shapes via normalizeList().
+     */
     'descrizioni' => [
-        [
+        'descrizione' => [
             'titolo' => 'Ufficio in vendita',
             'testo' => 'Descrizione immobile di test.',
             'testo_breve' => 'Ufficio ad Agrate Brianza.',
+            '_attributes' => [
+                'Lingua' => 'IT',
+            ],
         ],
     ],
 
@@ -59,8 +69,19 @@ $property = [
     ],
 
     'immagini' => [
-        [
-            'url' => 'https://example.com/test.jpg',
+        'immagine' => [
+            [
+                'id_immagine' => 1,
+                'tipo' => 'F',
+                'url' => 'https://example.com/test-1.jpg',
+                'posizione' => 1,
+            ],
+            [
+                'id_immagine' => 2,
+                'tipo' => 'F',
+                'url' => 'https://example.com/test-2.jpg',
+                'posizione' => 2,
+            ],
         ],
     ],
 ];

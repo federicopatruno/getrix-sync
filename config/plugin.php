@@ -16,6 +16,15 @@ return [
     'feed' => [
         'url' => 'https://studiostilo.it/wp-content/feeds/B84A402B-0D84-4D26-BFDD-4EE8BB05605E.xml',
         'xsd_url' => 'http://feed.getrix.it/xml/feed_3_1_0.xsd',
+
+        /*
+         * Validating against the bundled copy avoids making the
+         * daily sync depend on feed.getrix.it being reachable. Set
+         * to null to always fetch 'xsd_url' remotely instead.
+         */
+        'xsd_local_path' => dirname(__DIR__)
+            . '/resources/getrix/feed_3_1_0.xsd',
+
         'timeout' => 60,
         'connect_timeout' => 15,
     ],

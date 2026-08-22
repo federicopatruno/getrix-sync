@@ -66,6 +66,22 @@ final class PropertyAcfWriter
                 $postId
             );
         }
+
+        foreach ($property->residential as $field => $value) {
+            $this->update(
+                $field,
+                $value,
+                $postId
+            );
+        }
+
+        foreach ($property->land as $field => $value) {
+            $this->update(
+                $field,
+                $value,
+                $postId
+            );
+        }
     }
 
     /**

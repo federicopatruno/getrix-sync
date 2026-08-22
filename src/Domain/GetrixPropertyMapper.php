@@ -28,7 +28,7 @@ final class GetrixPropertyMapper
 
             data: $this->mapData($property),
 
-            descriptions: $this->mapArray(
+            descriptions: $this->mapDescriptions(
                 $property['descrizioni'] ?? []
             ),
 
@@ -36,7 +36,15 @@ final class GetrixPropertyMapper
                 $property['commerciale'] ?? []
             ),
 
-            images: $this->mapArray(
+            residential: $this->mapArray(
+                $property['residenziale'] ?? []
+            ),
+
+            land: $this->mapArray(
+                $property['terreno'] ?? []
+            ),
+
+            images: $this->mapImages(
                 $property['immagini'] ?? []
             ),
         );
@@ -148,6 +156,82 @@ final class GetrixPropertyMapper
     }
 
     /**
+     * Descrizioni is parsed by GetrixParser as:
+     *
+     * ['descrizione' => [...]] when there is more than one
+     * <Descrizione> (multi-language), or
+     * ['descrizione' => [...]] with a *single* associative array
+     * when there is only one.
+     *
+     * Both shapes are normalized here into a flat, zero-indexed list
+     * of ['titolo' => ..., 'testo' => ..., 'testo_breve' => ...,
+     * 'lingua' => ...] so Property::title()/description() can safely
+     * read $this->descriptions[0].
+     *
+     * @param mixed $descrizioni
+     * @return array<int, array<string, mixed>>
+     */
+    private function mapDescriptions(mixed $descrizioni): array
+    {
+        if (!is_array($descrizioni)) {
+            return [];
+        }
+
+        $list = $this->normalizeList(
+            $descrizioni['descrizione'] ?? []
+        );
+
+        return array_map(
+            static function (array $item): array {
+                $attributes = $item['_attributes'] ?? [];
+                unset($item['_attributes']);
+
+                $item['lingua'] = $attributes['Lingua']
+                    ?? $attributes['lingua']
+                    ?? null;
+
+                return $item;
+            },
+            $list
+        );
+    }
+
+    /**
+     * Immagini is parsed by GetrixParser as ['immagine' => [...]].
+     * Each image item already carries its own flattened attributes
+     * (id_immagine, tipo) thanks to GetrixParser::mergeOwnAttributes().
+     *
+     * Normalized into a flat, zero-indexed list of
+     * ['id' => ..., 'tipo' => ..., 'url' => ..., 'data_modifica' =>
+     * ..., 'titolo' => ..., 'posizione' => ...].
+     *
+     * @param mixed $immagini
+     * @return array<int, array<string, mixed>>
+     */
+    private function mapImages(mixed $immagini): array
+    {
+        if (!is_array($immagini)) {
+            return [];
+        }
+
+        $list = $this->normalizeList(
+            $immagini['immagine'] ?? []
+        );
+
+        return array_map(
+            static fn(array $image): array => [
+                'id' => $image['id_immagine'] ?? null,
+                'tipo' => $image['tipo'] ?? null,
+                'url' => $image['url'] ?? null,
+                'data_modifica' => $image['data_modifica'] ?? null,
+                'titolo' => $image['titolo'] ?? null,
+                'posizione' => $image['posizione'] ?? null,
+            ],
+            $list
+        );
+    }
+
+    /**
      * @param mixed $value
      * @return array<int|string, mixed>
      */
@@ -156,5 +240,30 @@ final class GetrixPropertyMapper
         return is_array($value)
             ? $value
             : [];
+    }
+
+    /**
+     * Normalize a value that is either:
+     *
+     * - a single associative item (one occurrence in the XML), or
+     * - a zero-indexed list of items (more than one occurrence),
+     *
+     * into a zero-indexed list in both cases.
+     *
+     * @param mixed $value
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeList(mixed $value): array
+    {
+        if (!is_array($value) || $value === []) {
+            return [];
+        }
+
+        if (array_is_list($value)) {
+            /** @var array<int, array<string, mixed>> $value */
+            return $value;
+        }
+
+        return [$value];
     }
 }

@@ -10,6 +10,8 @@ final readonly class Property
      * @param array<string, mixed> $data
      * @param array<int, array<string, mixed>> $descriptions
      * @param array<string, mixed> $commercial
+     * @param array<string, mixed> $residential
+     * @param array<string, mixed> $land
      * @param array<int, array<string, mixed>> $images
      */
     public function __construct(
@@ -17,6 +19,8 @@ final readonly class Property
         public array $data,
         public array $descriptions,
         public array $commercial,
+        public array $residential,
+        public array $land,
         public array $images,
     ) {}
 
