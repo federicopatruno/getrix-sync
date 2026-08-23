@@ -91,6 +91,14 @@ final class PropertyFields implements ServiceProvider
             ),
 
             $this->text(
+                'field_categoria_label',
+                'categoria_label',
+                'Categoria (etichetta)',
+                'Valore leggibile risolto dal codice Categoria in base allo schema XSD.',
+                true
+            ),
+
+            $this->text(
                 'field_tipologia_id',
                 'tipologia_id',
                 'ID Tipologia'
@@ -204,6 +212,14 @@ final class PropertyFields implements ServiceProvider
                 'Contratto'
             ),
 
+            $this->text(
+                'field_contratto_label',
+                'contratto_label',
+                'Contratto (etichetta)',
+                'Valore leggibile risolto dal codice Contratto in base allo schema XSD.',
+                true
+            ),
+
             $this->number(
                 'field_nr_locali',
                 'nr_locali',
@@ -242,9 +258,25 @@ final class PropertyFields implements ServiceProvider
             ),
 
             $this->text(
+                'field_tipo_spese_label',
+                'tipo_spese_label',
+                'Tipo Spese (etichetta)',
+                'Valore leggibile risolto in base allo schema XSD.',
+                true
+            ),
+
+            $this->text(
                 'field_tipo_proprieta',
                 'tipo_proprieta',
                 'Tipo Proprietà'
+            ),
+
+            $this->text(
+                'field_tipo_proprieta_label',
+                'tipo_proprieta_label',
+                'Tipo Proprietà (etichetta)',
+                'Valore leggibile risolto in base allo schema XSD.',
+                true
             ),
 
             $this->text(
@@ -305,15 +337,39 @@ final class PropertyFields implements ServiceProvider
             ),
 
             $this->text(
+                'field_tipo_costruzione_label',
+                'tipo_costruzione_label',
+                'Tipo Costruzione (etichetta)',
+                'Valore leggibile risolto in base allo schema XSD.',
+                true
+            ),
+
+            $this->text(
                 'field_tipologia_uso',
                 'tipologia_uso',
                 'Tipologia Uso'
             ),
 
             $this->text(
+                'field_tipologia_uso_label',
+                'tipologia_uso_label',
+                'Tipologia Uso (etichetta)',
+                'Valore leggibile risolto in base allo schema XSD.',
+                true
+            ),
+
+            $this->text(
                 'field_stato_manutenzione',
                 'stato_manutenzione',
                 'Stato Manutenzione'
+            ),
+
+            $this->text(
+                'field_stato_manutenzione_label',
+                'stato_manutenzione_label',
+                'Stato Manutenzione (etichetta)',
+                'Valore leggibile risolto in base allo schema XSD.',
+                true
             ),
 
             $this->text(
@@ -328,6 +384,14 @@ final class PropertyFields implements ServiceProvider
                 'Stato Immobile'
             ),
 
+            $this->text(
+                'field_stato_immobile_label',
+                'stato_immobile_label',
+                'Stato Immobile (etichetta)',
+                'Valore leggibile risolto in base allo schema XSD.',
+                true
+            ),
+
             $this->number(
                 'field_piani_edificio',
                 'piani_edificio',
@@ -339,6 +403,14 @@ final class PropertyFields implements ServiceProvider
                 'field_riscaldamento',
                 'riscaldamento',
                 'Riscaldamento'
+            ),
+
+            $this->text(
+                'field_riscaldamento_label',
+                'riscaldamento_label',
+                'Riscaldamento (etichetta)',
+                'Valore leggibile risolto in base allo schema XSD.',
+                true
             ),
 
             $this->trueFalse(
@@ -387,6 +459,14 @@ final class PropertyFields implements ServiceProvider
                 'field_legge_classe_energetica',
                 'legge_classe_energetica',
                 'Legge Classe Energetica'
+            ),
+
+            $this->text(
+                'field_legge_classe_energetica_label',
+                'legge_classe_energetica_label',
+                'Legge Classe Energetica (etichetta)',
+                'Valore leggibile risolto in base allo schema XSD.',
+                true
             ),
 
             $this->text(

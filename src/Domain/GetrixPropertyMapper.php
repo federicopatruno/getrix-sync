@@ -8,6 +8,10 @@ use RuntimeException;
 
 final class GetrixPropertyMapper
 {
+    public function __construct(
+        private readonly ?GetrixCodeResolver $resolver = null
+    ) {}
+
     /**
      * @param array<string, mixed> $property
      */
@@ -26,22 +30,28 @@ final class GetrixPropertyMapper
         return new Property(
             getrixId: $getrixId,
 
-            data: $this->mapData($property),
+            data: $this->withLabels(
+                $this->mapData($property),
+                'Immobile'
+            ),
 
             descriptions: $this->mapDescriptions(
                 $property['descrizioni'] ?? []
             ),
 
-            commercial: $this->mapArray(
-                $property['commerciale'] ?? []
+            commercial: $this->withLabels(
+                $this->mapArray($property['commerciale'] ?? []),
+                'Commerciale'
             ),
 
-            residential: $this->mapArray(
-                $property['residenziale'] ?? []
+            residential: $this->withLabels(
+                $this->mapArray($property['residenziale'] ?? []),
+                'Residenziale'
             ),
 
-            land: $this->mapArray(
-                $property['terreno'] ?? []
+            land: $this->withLabels(
+                $this->mapArray($property['terreno'] ?? []),
+                'Terreno'
             ),
 
             images: $this->mapImages(
@@ -240,6 +250,50 @@ final class GetrixPropertyMapper
         return is_array($value)
             ? $value
             : [];
+    }
+
+    /**
+     * Add a "<field>_label" entry next to every field whose raw
+     * Getrix code resolves to a human-readable label in the given
+     * XSD block (e.g. 'categoria' => '2' also gets
+     * 'categoria_label' => 'Immobili Commerciali').
+     *
+     * The raw code is always kept as-is, so anything already relying
+     * on it (filtering, sorting, re-exporting) keeps working; the
+     * label is purely additive.
+     *
+     * @param array<string, mixed> $fields
+     * @return array<string, mixed>
+     */
+    private function withLabels(array $fields, string $block): array
+    {
+        if ($this->resolver === null || $fields === []) {
+            return $fields;
+        }
+
+        $enumMap = $this->resolver->enumMap($block);
+
+        if ($enumMap === []) {
+            return $fields;
+        }
+
+        foreach ($fields as $field => $value) {
+            if (
+                $value === null
+                || $value === ''
+                || !isset($enumMap[$field])
+            ) {
+                continue;
+            }
+
+            $label = $enumMap[$field][(string) $value] ?? null;
+
+            if ($label !== null) {
+                $fields[$field . '_label'] = $label;
+            }
+        }
+
+        return $fields;
     }
 
     /**

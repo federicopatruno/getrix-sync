@@ -32,5 +32,15 @@ return [
     'sync' => [
         'delete_missing' => true,
         'download_images' => true,
+
+        /*
+         * Prevents two sync runs (WP-Cron, the manual "sync all"
+         * button, or a single-property sync) from ever executing
+         * concurrently, which would otherwise let two overlapping
+         * runs both see "no existing post" for the same getrix_id
+         * and both insert it, creating a duplicate.
+         */
+        'lock_key' => 'getrix_sync_lock',
+        'lock_ttl' => 600, // seconds; safety net for a crashed run
     ],
 ];

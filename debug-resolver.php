@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/src/Autoloader.php';
 
 use GetrixSync\Domain\GetrixCodeResolver;
 use GetrixSync\Domain\GetrixSchemaInspector;

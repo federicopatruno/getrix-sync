@@ -66,6 +66,21 @@ caso l'evento sia stato cancellato senza passare dalla disattivazione
 > e/o affiancare un vero cron di sistema che chiami `wp-cron.php`
 > periodicamente, per garantire puntualità.
 
+### Concorrenza
+
+Ogni sincronizzazione (cron, pulsante manuale, singolo immobile) è
+protetta da un lock (`SyncLock`, basato su `wp_options` con
+`add_option()`, atomico a livello di database). Se una sincronizzazione
+è già in corso, un secondo tentativo che parte nel frattempo (es. il
+cron delle 04:00 UTC che si sovrappone a un click manuale) non esegue
+alcuna operazione invece di rischiare di creare un post duplicato per
+lo stesso `getrix_id`: "controlla se esiste, altrimenti crea" non è
+atomico, quindi due esecuzioni realmente concorrenti potrebbero
+altrimenti controllare entrambe "non esiste" prima che una delle due
+abbia scritto. Il lock ha un TTL di sicurezza (10 minuti di default,
+`sync.lock_ttl`) che lo rilascia automaticamente se un run precedente
+è terminato in modo anomalo (crash, timeout) senza rilasciarlo.
+
 ### Sincronizzazione manuale
 
 In **Strumenti → Getrix Sync** è disponibile:

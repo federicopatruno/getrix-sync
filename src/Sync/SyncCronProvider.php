@@ -125,6 +125,13 @@ final class SyncCronProvider implements ServiceProvider
                 $result['updated'],
                 $result['deleted']
             ));
+        } catch (SyncAlreadyRunningException $exception) {
+            /*
+             * Benign: another run (cron or manual) is already in
+             * progress. Not logged as an error to avoid noise; the
+             * other run will complete the sync.
+             */
+            $this->log($exception->getMessage());
         } catch (Throwable $exception) {
             $this->log(
                 'Sync failed: ' . $exception->getMessage(),

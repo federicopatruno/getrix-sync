@@ -23,6 +23,7 @@ final class SyncManager
         private readonly GetrixPropertyMapper $mapper,
         private readonly PropertyRepository $repository,
         private readonly PropertyAcfWriter $acfWriter,
+        private readonly SyncLock $lock = new SyncLock(),
     ) {}
 
     /**
@@ -49,27 +50,29 @@ final class SyncManager
      */
     public function syncOne(string $getrixId): array
     {
-        $feed = $this->loadFeed();
+        return $this->withLock(function () use ($getrixId): array {
+            $feed = $this->loadFeed();
 
-        foreach ($feed->properties as $propertyData) {
-            if (
-                (string) ($propertyData['getrix_id'] ?? '')
-                !== $getrixId
-            ) {
-                continue;
+            foreach ($feed->properties as $propertyData) {
+                if (
+                    (string) ($propertyData['getrix_id'] ?? '')
+                    !== $getrixId
+                ) {
+                    continue;
+                }
+
+                $property = $this->mapper->map($propertyData);
+
+                return $this->persist($property);
             }
 
-            $property = $this->mapper->map($propertyData);
-
-            return $this->persist($property);
-        }
-
-        throw new RuntimeException(
-            sprintf(
-                'Getrix property "%s" was not found in the feed.',
-                $getrixId
-            )
-        );
+            throw new RuntimeException(
+                sprintf(
+                    'Getrix property "%s" was not found in the feed.',
+                    $getrixId
+                )
+            );
+        });
     }
 
     /**
@@ -83,30 +86,32 @@ final class SyncManager
      */
     public function syncAll(): array
     {
-        $feed = $this->loadFeed();
+        return $this->withLock(function (): array {
+            $feed = $this->loadFeed();
 
-        $created = 0;
-        $updated = 0;
+            $created = 0;
+            $updated = 0;
 
-        foreach ($feed->properties as $propertyData) {
-            $property = $this->mapper->map($propertyData);
+            foreach ($feed->properties as $propertyData) {
+                $property = $this->mapper->map($propertyData);
 
-            $result = $this->persist($property);
+                $result = $this->persist($property);
 
-            if ($result['created']) {
-                ++$created;
+                if ($result['created']) {
+                    ++$created;
+                }
+
+                if ($result['updated']) {
+                    ++$updated;
+                }
             }
 
-            if ($result['updated']) {
-                ++$updated;
-            }
-        }
-
-        return [
-            'total' => count($feed->properties),
-            'created' => $created,
-            'updated' => $updated,
-        ];
+            return [
+                'total' => count($feed->properties),
+                'created' => $created,
+                'updated' => $updated,
+            ];
+        });
     }
 
     /**
@@ -126,42 +131,69 @@ final class SyncManager
      */
     public function syncAndPrune(): array
     {
-        $feed = $this->loadFeed();
+        return $this->withLock(function (): array {
+            $feed = $this->loadFeed();
 
-        $created = 0;
-        $updated = 0;
-        $currentGetrixIds = [];
+            $created = 0;
+            $updated = 0;
+            $currentGetrixIds = [];
 
-        foreach ($feed->properties as $propertyData) {
-            $property = $this->mapper->map($propertyData);
+            foreach ($feed->properties as $propertyData) {
+                $property = $this->mapper->map($propertyData);
 
-            $currentGetrixIds[] = $property->getrixId;
+                $currentGetrixIds[] = $property->getrixId;
 
-            $result = $this->persist($property);
+                $result = $this->persist($property);
 
-            if ($result['created']) {
-                ++$created;
+                if ($result['created']) {
+                    ++$created;
+                }
+
+                if ($result['updated']) {
+                    ++$updated;
+                }
             }
 
-            if ($result['updated']) {
-                ++$updated;
+            $deleted = 0;
+
+            if ((bool) Config::get('sync.delete_missing', true)) {
+                $deleted = $this->repository->deleteMissing(
+                    $currentGetrixIds
+                );
             }
-        }
 
-        $deleted = 0;
+            return [
+                'total' => count($feed->properties),
+                'created' => $created,
+                'updated' => $updated,
+                'deleted' => $deleted,
+            ];
+        });
+    }
 
-        if ((bool) Config::get('sync.delete_missing', true)) {
-            $deleted = $this->repository->deleteMissing(
-                $currentGetrixIds
+    /**
+     * Run $work while holding the sync lock, guaranteeing it is
+     * released even if $work throws. Throws immediately, without
+     * doing any work, if another sync run already holds the lock.
+     *
+     * @template T
+     * @param callable(): T $work
+     * @return T
+     */
+    private function withLock(callable $work): mixed
+    {
+        if (!$this->lock->acquire()) {
+            throw new SyncAlreadyRunningException(
+                'A Getrix sync is already running; skipping this run '
+                . 'to avoid creating duplicate posts.'
             );
         }
 
-        return [
-            'total' => count($feed->properties),
-            'created' => $created,
-            'updated' => $updated,
-            'deleted' => $deleted,
-        ];
+        try {
+            return $work();
+        } finally {
+            $this->lock->release();
+        }
     }
 
     /**

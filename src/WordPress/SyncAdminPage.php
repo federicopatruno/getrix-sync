@@ -6,6 +6,7 @@ namespace GetrixSync\WordPress;
 
 use GetrixSync\Core\Container;
 use GetrixSync\Core\ServiceProvider;
+use GetrixSync\Sync\SyncAlreadyRunningException;
 use GetrixSync\Sync\SyncManager;
 use RuntimeException;
 
@@ -221,6 +222,11 @@ final class SyncAdminPage implements ServiceProvider
             $result = $manager->syncOne(
                 $getrixId
             );
+        } catch (SyncAlreadyRunningException $exception) {
+            wp_die(
+                'Una sincronizzazione è già in corso. Attendi che '
+                . 'finisca e riprova tra qualche minuto.'
+            );
         } catch (\Throwable $exception) {
             wp_die(
                 esc_html(
@@ -267,6 +273,12 @@ final class SyncAdminPage implements ServiceProvider
                 ->get(SyncManager::class);
 
             $result = $manager->syncAndPrune();
+        } catch (SyncAlreadyRunningException $exception) {
+            wp_die(
+                'Una sincronizzazione è già in corso (probabilmente '
+                . 'quella automatica delle 04:00 UTC). Attendi che '
+                . 'finisca e riprova tra qualche minuto.'
+            );
         } catch (\Throwable $exception) {
             wp_die(
                 esc_html(

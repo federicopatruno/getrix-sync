@@ -39,6 +39,7 @@ final class SyncServiceProvider implements ServiceProvider
                 acfWriter: $container->get(
                     PropertyAcfWriter::class
                 ),
+                lock: new SyncLock(),
             )
         );
     }
