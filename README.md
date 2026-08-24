@@ -69,17 +69,27 @@ caso l'evento sia stato cancellato senza passare dalla disattivazione
 ### Concorrenza
 
 Ogni sincronizzazione (cron, pulsante manuale, singolo immobile) è
-protetta da un lock (`SyncLock`, basato su `wp_options` con
-`add_option()`, atomico a livello di database). Se una sincronizzazione
-è già in corso, un secondo tentativo che parte nel frattempo (es. il
-cron delle 04:00 UTC che si sovrappone a un click manuale) non esegue
-alcuna operazione invece di rischiare di creare un post duplicato per
-lo stesso `getrix_id`: "controlla se esiste, altrimenti crea" non è
-atomico, quindi due esecuzioni realmente concorrenti potrebbero
-altrimenti controllare entrambe "non esiste" prima che una delle due
-abbia scritto. Il lock ha un TTL di sicurezza (10 minuti di default,
-`sync.lock_ttl`) che lo rilascia automaticamente se un run precedente
-è terminato in modo anomalo (crash, timeout) senza rilasciarlo.
+protetta da un lock (`SyncLock`). Se una sincronizzazione è già in
+corso, un secondo tentativo che parte nel frattempo (es. il cron delle
+04:00 UTC che si sovrappone a un click manuale, o un doppio click sul
+pulsante "Sincronizza immobile") non esegue alcuna operazione invece
+di rischiare di creare un post duplicato per lo stesso `getrix_id`:
+"controlla se esiste, altrimenti crea" non è atomico, quindi due
+esecuzioni realmente concorrenti potrebbero altrimenti controllare
+entrambe "non esiste" prima che una delle due abbia scritto.
+
+Il lock scrive direttamente su `wp_options` con un `INSERT` grezzo
+(`$wpdb->insert()`, non `add_option()`): dalla 6.4 in poi `add_option()`
+usa internamente `INSERT ... ON DUPLICATE KEY UPDATE`, quindi due
+chiamate quasi simultanee possono restituire entrambe `true` e non è
+una primitiva di mutex affidabile. Un `INSERT` semplice sulla colonna
+`option_name` (che ha un vincolo `UNIQUE` nello schema di WordPress)
+è invece garantito atomico dal database stesso: se due processi
+tentano l'insert nello stesso istante, uno solo riesce, l'altro fallisce
+con un errore di chiave duplicata, rilevabile in modo affidabile. Il
+lock ha un TTL di sicurezza (10 minuti di default, `sync.lock_ttl`) che
+lo rilascia automaticamente se un run precedente è terminato in modo
+anomalo (crash, timeout) senza rilasciarlo.
 
 ### Sincronizzazione manuale
 
