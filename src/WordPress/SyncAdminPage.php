@@ -6,8 +6,10 @@ namespace GetrixSync\WordPress;
 
 use GetrixSync\Core\Container;
 use GetrixSync\Core\ServiceProvider;
+use GetrixSync\Support\Config;
 use GetrixSync\Sync\SyncAlreadyRunningException;
 use GetrixSync\Sync\SyncManager;
+use GetrixSync\WordPress\PropertyMeta;
 use RuntimeException;
 
 final class SyncAdminPage implements ServiceProvider
@@ -187,8 +189,214 @@ final class SyncAdminPage implements ServiceProvider
                 );
                 ?>
             </form>
+
+            <hr>
+
+            <h2>Diagnostica</h2>
+
+            <p>
+                Strumento di sola lettura: mostra esattamente cosa
+                vede il plugin nel database per un dato
+                <code>getrix_id</code>, senza scrivere nulla. Utile
+                per capire perché una sincronizzazione crea un nuovo
+                post invece di aggiornare quello esistente.
+            </p>
+
+            <form method="get">
+                <input
+                    type="hidden"
+                    name="page"
+                    value="getrix-sync">
+
+                <table class="form-table">
+                    <tr>
+                        <th scope="row">
+                            <label for="diag_getrix_id">
+                                ID Immobile Getrix da controllare
+                            </label>
+                        </th>
+                        <td>
+                            <input
+                                type="text"
+                                name="diag_getrix_id"
+                                id="diag_getrix_id"
+                                class="regular-text"
+                                value="<?php
+                                    echo esc_attr(
+                                        (string) (
+                                            $_GET['diag_getrix_id']
+                                            ?? ''
+                                        )
+                                    );
+                                ?>">
+                        </td>
+                    </tr>
+                </table>
+
+                <?php submit_button('Controlla'); ?>
+            </form>
+
+            <?php
+            $diagId = trim(
+                (string) ($_GET['diag_getrix_id'] ?? '')
+            );
+
+            if ($diagId !== '') {
+                $this->renderDiagnostics($diagId);
+            }
+            ?>
         </div>
 <?php
+    }
+
+    private function renderDiagnostics(string $getrixId): void
+    {
+        global $wpdb;
+
+        $postType = (string) Config::get(
+            'post_type',
+            'immobile'
+        );
+
+        $metaKey = PropertyMeta::GETRIX_ID;
+
+        $query = $wpdb->prepare(
+            "
+            SELECT pm.post_id
+            FROM {$wpdb->postmeta} pm
+            INNER JOIN {$wpdb->posts} p
+                ON p.ID = pm.post_id
+            WHERE pm.meta_key = %s
+              AND pm.meta_value = %s
+              AND p.post_type = %s
+            ORDER BY pm.post_id ASC
+            LIMIT 1
+            ",
+            $metaKey,
+            $getrixId,
+            $postType
+        );
+
+        $foundId = $wpdb->get_var($query);
+        $dbError = $wpdb->last_error;
+
+        // All rows carrying this getrix_id, REGARDLESS of post_type
+        // or post_status -- this is what catches a post_type
+        // mismatch or a post sitting in the trash.
+        $allRows = $wpdb->get_results(
+            $wpdb->prepare(
+                "
+                SELECT
+                    p.ID,
+                    p.post_type,
+                    p.post_status,
+                    p.post_title,
+                    pm.meta_value AS getrix_id
+                FROM {$wpdb->postmeta} pm
+                INNER JOIN {$wpdb->posts} p
+                    ON p.ID = pm.post_id
+                WHERE pm.meta_key = %s
+                  AND pm.meta_value = %s
+                ",
+                $metaKey,
+                $getrixId
+            )
+        );
+
+        ?>
+        <div class="notice notice-info">
+            <h3>Risultato diagnostica per getrix_id =
+                <code><?php echo esc_html($getrixId); ?></code>
+            </h3>
+
+            <table class="widefat striped" style="max-width: 900px;">
+                <tbody>
+                    <tr>
+                        <th style="width: 320px;">Prefisso tabelle ($wpdb-&gt;prefix)</th>
+                        <td><code><?php echo esc_html($wpdb->prefix); ?></code></td>
+                    </tr>
+                    <tr>
+                        <th>Post type configurato (Config::get('post_type'))</th>
+                        <td><code><?php echo esc_html($postType); ?></code></td>
+                    </tr>
+                    <tr>
+                        <th>Post type effettivamente registrato?</th>
+                        <td><?php echo post_type_exists($postType) ? 'sì' : '<strong style="color:red">NO -- non registrato in WordPress</strong>'; ?></td>
+                    </tr>
+                    <tr>
+                        <th>Meta key usata per l'identità (PropertyMeta::GETRIX_ID)</th>
+                        <td><code><?php echo esc_html($metaKey); ?></code></td>
+                    </tr>
+                    <tr>
+                        <th>Query eseguita da findByGetrixId()</th>
+                        <td><pre style="white-space: pre-wrap;"><?php echo esc_html($query); ?></pre></td>
+                    </tr>
+                    <tr>
+                        <th>Risultato ($wpdb-&gt;get_var())</th>
+                        <td>
+                            <?php
+                            echo $foundId === null
+                                ? '<strong>NULL (nessun post trovato)</strong>'
+                                : 'post ID ' . esc_html((string) $foundId);
+                            ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Errore SQL ($wpdb-&gt;last_error)</th>
+                        <td>
+                            <?php
+                            echo $dbError === ''
+                                ? '(nessuno)'
+                                : '<strong style="color:red">' . esc_html($dbError) . '</strong>';
+                            ?>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>
+                Tutti i post nel database con questo getrix_id
+                (qualsiasi post_type o stato, incluso il cestino)
+            </h4>
+
+            <?php if ($allRows === []) : ?>
+                <p>Nessun post trovato con questo getrix_id, in nessun post_type.</p>
+            <?php else : ?>
+                <table class="widefat striped" style="max-width: 900px;">
+                    <thead>
+                        <tr>
+                            <th>Post ID</th>
+                            <th>post_type</th>
+                            <th>post_status</th>
+                            <th>Titolo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($allRows as $row) : ?>
+                            <tr<?php echo $row->post_type !== $postType ? ' style="background:#ffe8e8;"' : ''; ?>>
+                                <td><?php echo esc_html((string) $row->ID); ?></td>
+                                <td>
+                                    <?php echo esc_html($row->post_type); ?>
+                                    <?php if ($row->post_type !== $postType) : ?>
+                                        <strong style="color:red">&larr; diverso da "<?php echo esc_html($postType); ?>"!</strong>
+                                    <?php endif; ?>
+                                </td>
+                                <td><?php echo esc_html($row->post_status); ?></td>
+                                <td><?php echo esc_html($row->post_title); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <p>
+                    Se in questa tabella compare più di una riga con
+                    <code>post_type = <?php echo esc_html($postType); ?></code>,
+                    sono i post duplicati già creati in precedenza:
+                    andranno rimossi manualmente una volta risolta la
+                    causa, la sincronizzazione da sola non li unisce.
+                </p>
+            <?php endif; ?>
+        </div>
+        <?php
     }
 
     public function syncOne(): void

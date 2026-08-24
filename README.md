@@ -121,6 +121,21 @@ dallo XSD, utile per estendere la copertura ai blocchi
 `Residenziale` / `Commerciale` / `Terreno` in modo incrementale senza
 scrivere a mano ogni singolo campo.
 
+## Nota sulla chiave meta di identità
+
+`_getrix_id` (con underscore iniziale) è la convenzione WordPress
+standard per il meta "protetto" (nascosto dai Custom Fields). Il
+plugin usa invece `getrix_id` (senza underscore) in
+`PropertyMeta::GETRIX_ID`, per allinearsi ai dati già presenti nel
+database di produzione. Se in futuro il CPT `immobile` viene
+ricreato da zero su un sito nuovo, questa scelta resta valida
+comunque; l'unica cosa da evitare è modificare questa costante senza
+anche migrare i meta già salvati, perché `PropertyRepository::
+findByGetrixId()` la usa per decidere se creare o aggiornare un
+post — un disallineamento tra la chiave usata dal codice e quella
+realmente salvata nel database fa sì che ogni sincronizzazione non
+trovi mai il post già esistente e ne crei uno nuovo ad ogni run.
+
 ## Test
 
 ```bash

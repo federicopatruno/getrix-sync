@@ -10,13 +10,26 @@ use GetrixSync\Support\Config;
 
 final class PropertyMeta implements ServiceProvider
 {
-    public const GETRIX_ID = '_getrix_id';
+    /*
+     * No leading underscore: matches the meta key naming already
+     * used by the existing production data (confirmed against the
+     * real database), where these are stored as plain "getrix_id",
+     * "getrix_source_hash", etc. -- not the "_"-prefixed ("protected")
+     * convention WordPress itself uses for internal meta.
+     *
+     * This matters specifically for GETRIX_ID: it's the key
+     * PropertyRepository::findByGetrixId() searches on to decide
+     * insert vs. update. A mismatch here means every sync silently
+     * fails to find the already-existing post and creates a
+     * duplicate instead of updating it.
+     */
+    public const GETRIX_ID = 'getrix_id';
 
-    public const SOURCE_HASH = '_getrix_source_hash';
+    public const SOURCE_HASH = 'getrix_source_hash';
 
-    public const LAST_SYNC = '_getrix_last_sync';
+    public const LAST_SYNC = 'getrix_last_sync';
 
-    public const SOURCE_MODIFIED = '_getrix_source_modified';
+    public const SOURCE_MODIFIED = 'getrix_source_modified';
 
     public function register(Container $container): void
     {
