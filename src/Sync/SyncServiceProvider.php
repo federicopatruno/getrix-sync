@@ -11,6 +11,7 @@ use GetrixSync\Feed\FeedDownloader;
 use GetrixSync\Feed\GetrixParser;
 use GetrixSync\Feed\GetrixValidator;
 use GetrixSync\WordPress\PropertyAcfWriter;
+use GetrixSync\WordPress\PropertyFeaturedImageWriter;
 use GetrixSync\WordPress\PropertyRepository;
 
 final class SyncServiceProvider implements ServiceProvider
@@ -38,6 +39,9 @@ final class SyncServiceProvider implements ServiceProvider
                 ),
                 acfWriter: $container->get(
                     PropertyAcfWriter::class
+                ),
+                featuredImageWriter: $container->get(
+                    PropertyFeaturedImageWriter::class
                 ),
                 lock: new SyncLock(),
             )

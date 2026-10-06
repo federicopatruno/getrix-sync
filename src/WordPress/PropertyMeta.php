@@ -31,6 +31,14 @@ final class PropertyMeta implements ServiceProvider
 
     public const SOURCE_MODIFIED = 'getrix_source_modified';
 
+    /*
+     * Tracks which Getrix image (by its own id_immagine, not a WP
+     * attachment ID) is currently set as the post's featured image,
+     * so re-syncing doesn't re-download and re-attach the same cover
+     * photo every day when nothing changed.
+     */
+    public const FEATURED_IMAGE_SOURCE = 'getrix_featured_image_source';
+
     public function register(Container $container): void
     {
         // No container bindings required yet.
@@ -90,6 +98,20 @@ final class PropertyMeta implements ServiceProvider
         register_post_meta(
             $postType,
             self::SOURCE_MODIFIED,
+            [
+                'type' => 'string',
+                'single' => true,
+                'show_in_rest' => false,
+                'sanitize_callback' => 'sanitize_text_field',
+                'auth_callback' => static function (): bool {
+                    return current_user_can('edit_posts');
+                },
+            ]
+        );
+
+        register_post_meta(
+            $postType,
+            self::FEATURED_IMAGE_SOURCE,
             [
                 'type' => 'string',
                 'single' => true,

@@ -100,6 +100,25 @@ In **Strumenti → Getrix Sync** è disponibile:
 - un form per sincronizzare un singolo immobile dato il suo
   `IDImmobile`, utile per il debug.
 
+## Immagine in evidenza
+
+Ad ogni sincronizzazione, il plugin imposta automaticamente
+l'immagine in evidenza (featured image) del post `immobile`,
+scaricandola dalla foto con `posizione` più bassa nel feed (la
+copertina) e allegandola alla media library di WordPress --
+l'immagine in evidenza nativa di WordPress richiede un allegato
+reale, non può puntare a un URL esterno.
+
+Per evitare di riscaricare la stessa foto ad ogni sync giornaliero,
+il plugin tiene traccia (nel meta `getrix_featured_image_source`)
+di quale immagine Getrix è attualmente impostata come copertina, e
+la riscarica solo se cambia nel feed. L'intera galleria (tutte le
+foto, come URL esterni) resta invece nel campo ripetitore ACF
+`immagini_getrix`, gestita separatamente e non scaricata.
+
+Disattivabile impostando `sync.download_images` a `false` in
+`config/plugin.php`.
+
 ## Architettura
 
 ```

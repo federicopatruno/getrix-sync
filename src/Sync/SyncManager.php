@@ -11,6 +11,7 @@ use GetrixSync\Feed\GetrixParser;
 use GetrixSync\Feed\GetrixValidator;
 use GetrixSync\Support\Config;
 use GetrixSync\WordPress\PropertyAcfWriter;
+use GetrixSync\WordPress\PropertyFeaturedImageWriter;
 use GetrixSync\WordPress\PropertyRepository;
 use RuntimeException;
 
@@ -23,6 +24,7 @@ final class SyncManager
         private readonly GetrixPropertyMapper $mapper,
         private readonly PropertyRepository $repository,
         private readonly PropertyAcfWriter $acfWriter,
+        private readonly PropertyFeaturedImageWriter $featuredImageWriter,
         private readonly SyncLock $lock = new SyncLock(),
     ) {}
 
@@ -209,6 +211,11 @@ final class SyncManager
         $result = $this->repository->save($property);
 
         $this->acfWriter->write(
+            $result['post']->ID,
+            $property
+        );
+
+        $this->featuredImageWriter->write(
             $result['post']->ID,
             $property
         );

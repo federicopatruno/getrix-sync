@@ -22,6 +22,12 @@ final class WordPressServiceProvider implements ServiceProvider
             static fn(): PropertyAcfWriter =>
             new PropertyAcfWriter()
         );
+
+        $container->singleton(
+            PropertyFeaturedImageWriter::class,
+            static fn(): PropertyFeaturedImageWriter =>
+            new PropertyFeaturedImageWriter()
+        );
     }
 
     public function boot(Container $container): void
