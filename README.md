@@ -119,24 +119,29 @@ foto, come URL esterni) resta invece nel campo ripetitore ACF
 Disattivabile impostando `sync.download_images` a `false` in
 `config/plugin.php`.
 
-## Categorie e tag
+## Categorie e tassonomie
 
-Il CPT `immobile` usa le tassonomie native `category` e `post_tag`
-(configurabili in `config/plugin.php`, chiave `taxonomies`). Ad ogni
-sincronizzazione `PropertyTermsWriter` assegna:
+Ad ogni sincronizzazione `PropertyTermsWriter` assegna a ogni
+immobile:
 
-- **Categoria**: `categoria_label` come categoria padre (es. "Immobili
-  Commerciali") e `tipologia` come sottocategoria (es. "Ufficio"). Il
-  post riceve entrambi i termini. La stessa tipologia sotto categorie
-  padre diverse genera sottocategorie distinte.
-- **Tag**: `contratto_label`, `tipologia_uso_label` e
-  `tipo_costruzione_label`.
+- **Categoria** (tassonomia nativa `category`): `categoria_label`,
+  es. "Immobili Commerciali".
+- **Tipologia** (`tipologia`): il campo `tipologia`, es. "Ufficio".
+- **Contratto** (`contratto`): `contratto_label`.
+- **Tipologia d'uso** (`tipologia-uso`): `tipologia_uso_label`.
+- **Tipo costruzione** (`tipo-costruzione`): `tipo_costruzione_label`.
+
+Le tassonomie personalizzate sono registrate da `PropertyTaxonomies`
+e si definiscono in `config/plugin.php` (chiave `taxonomies.terms`:
+slug, etichette e campo del feed da cui prendere il valore).
 
 I termini vengono creati se mancano. Il plugin sostituisce solo i
-termini che aveva assegnato lui (tracciati nei meta
-`getrix_synced_category_ids` / `getrix_synced_tag_ids`): se un
-annuncio cambia contratto o tipologia il termine vecchio viene
-rimosso, mentre categorie e tag aggiunti a mano non vengono toccati.
+termini che aveva assegnato lui (tracciati nei meta `getrix_synced_*`):
+se un annuncio cambia contratto o tipologia il termine vecchio viene
+rimosso, mentre termini aggiunti a mano non vengono toccati. Le
+sottocategorie e i tag assegnati dalla versione precedente del plugin
+vengono staccati dagli immobili alla prima sincronizzazione; i termini
+rimasti vuoti vanno eliminati a mano.
 
 ## Architettura
 

@@ -40,13 +40,21 @@ final class PropertyMeta implements ServiceProvider
     public const FEATURED_IMAGE_SOURCE = 'getrix_featured_image_source';
 
     /*
-     * IDs of the category / tag terms assigned by the sync itself
-     * (not registered: internal bookkeeping, never exposed). Used to
-     * remove only terms the sync previously added when a listing's
-     * values change, without touching terms an editor added by hand.
+     * IDs of the terms assigned by the sync itself (not registered:
+     * internal bookkeeping, never exposed). Used to replace only the
+     * terms the sync previously added when a listing's values
+     * change, without touching terms an editor added by hand.
+     * SYNCED_CATEGORY_IDS is for the category taxonomy; custom
+     * taxonomies use SYNCED_TERMS_PREFIX . '<taxonomy>'.
      */
     public const SYNCED_CATEGORY_IDS = 'getrix_synced_category_ids';
 
+    public const SYNCED_TERMS_PREFIX = 'getrix_synced_terms_';
+
+    /*
+     * Legacy: an earlier version assigned tags. Only read to detach
+     * them from the post once (see PropertyTermsWriter).
+     */
     public const SYNCED_TAG_IDS = 'getrix_synced_tag_ids';
 
     public function register(Container $container): void

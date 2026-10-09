@@ -12,16 +12,45 @@ return [
     'rest_namespace' => 'getrix-sync/v1',
 
     /*
-     * Taxonomies attached to the property post type and filled by
-     * the sync (see PropertyTermsWriter): the hierarchical one
-     * receives "categoria_label" as parent term and "tipologia" as
-     * its child; the flat one receives the contratto / tipologia
-     * uso / tipo costruzione labels. They must be already
-     * registered taxonomies (WordPress built-ins by default).
+     * Taxonomies filled by the sync (see PropertyTermsWriter).
+     *
+     * 'category' is the built-in WordPress taxonomy and receives
+     * "categoria_label" (e.g. "Immobili Commerciali").
+     *
+     * 'terms' are custom taxonomies registered by PropertyTaxonomies
+     * and attached to the property post type. Each one is filled
+     * from the feed field named in 'field' (looked up in the common,
+     * Commerciale, Residenziale and Terreno data of the listing).
      */
     'taxonomies' => [
         'category' => 'category',
-        'tag' => 'post_tag',
+
+        'terms' => [
+            'tipologia' => [
+                'taxonomy' => 'tipologia',
+                'singular' => 'Tipologia',
+                'plural' => 'Tipologie',
+                'field' => 'tipologia',
+            ],
+            'contratto' => [
+                'taxonomy' => 'contratto',
+                'singular' => 'Contratto',
+                'plural' => 'Contratti',
+                'field' => 'contratto_label',
+            ],
+            'tipologia_uso' => [
+                'taxonomy' => 'tipologia-uso',
+                'singular' => "Tipologia d'uso",
+                'plural' => "Tipologie d'uso",
+                'field' => 'tipologia_uso_label',
+            ],
+            'tipo_costruzione' => [
+                'taxonomy' => 'tipo-costruzione',
+                'singular' => 'Tipo costruzione',
+                'plural' => 'Tipi costruzione',
+                'field' => 'tipo_costruzione_label',
+            ],
+        ],
     ],
 
     'version' => '0.1.0',

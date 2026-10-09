@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GetrixSync\Core;
 
 use GetrixSync\WordPress\PropertyPostType;
+use GetrixSync\WordPress\PropertyTaxonomies;
 use GetrixSync\WordPress\WordPressServiceProvider;
 use GetrixSync\WordPress\PropertyMeta;
 use GetrixSync\Acf\PropertyFields;
@@ -29,6 +30,7 @@ final class Plugin
         self::$application
             ->addProvider(new WordPressServiceProvider())
             ->addProvider(new PropertyPostType())
+            ->addProvider(new PropertyTaxonomies())
             ->addProvider(new PropertyMeta())
             ->addProvider(new PropertyFields())
             ->addProvider(new FeedServiceProvider())

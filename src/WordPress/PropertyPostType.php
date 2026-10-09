@@ -68,7 +68,6 @@ final class PropertyPostType implements ServiceProvider
 
             'taxonomies' => [
                 (string) Config::get('taxonomies.category', 'category'),
-                (string) Config::get('taxonomies.tag', 'post_tag'),
             ],
 
             'capability_type' => 'post',
