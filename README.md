@@ -119,29 +119,30 @@ foto, come URL esterni) resta invece nel campo ripetitore ACF
 Disattivabile impostando `sync.download_images` a `false` in
 `config/plugin.php`.
 
-## Categorie e tassonomie
+## Tassonomie
 
 Ad ogni sincronizzazione `PropertyTermsWriter` assegna a ogni
-immobile:
+immobile cinque tassonomie personalizzate, collegate solo al CPT
+`immobile` (non toccano categorie e tag degli articoli):
 
-- **Categoria** (tassonomia nativa `category`): `categoria_label`,
+- **Categoria Immobile** (`categoria-immobile`): `categoria_label`,
   es. "Immobili Commerciali".
 - **Tipologia** (`tipologia`): il campo `tipologia`, es. "Ufficio".
 - **Contratto** (`contratto`): `contratto_label`.
 - **Tipologia d'uso** (`tipologia-uso`): `tipologia_uso_label`.
 - **Tipo costruzione** (`tipo-costruzione`): `tipo_costruzione_label`.
 
-Le tassonomie personalizzate sono registrate da `PropertyTaxonomies`
-e si definiscono in `config/plugin.php` (chiave `taxonomies.terms`:
-slug, etichette e campo del feed da cui prendere il valore).
+Sono registrate da `PropertyTaxonomies` e si definiscono in
+`config/plugin.php` (chiave `taxonomies.terms`: slug, etichette e
+campo del feed da cui prendere il valore).
 
 I termini vengono creati se mancano. Il plugin sostituisce solo i
 termini che aveva assegnato lui (tracciati nei meta `getrix_synced_*`):
 se un annuncio cambia contratto o tipologia il termine vecchio viene
 rimosso, mentre termini aggiunti a mano non vengono toccati. Le
-sottocategorie e i tag assegnati dalla versione precedente del plugin
-vengono staccati dagli immobili alla prima sincronizzazione; i termini
-rimasti vuoti vanno eliminati a mano.
+categorie native e i tag assegnati dalle versioni precedenti del
+plugin vengono staccati dagli immobili alla prima sincronizzazione; i
+termini rimasti vuoti vanno eliminati a mano.
 
 ## Architettura
 

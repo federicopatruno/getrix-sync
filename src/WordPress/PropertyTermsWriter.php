@@ -8,13 +8,10 @@ use GetrixSync\Domain\Property;
 use GetrixSync\Support\Config;
 
 /**
- * Fills the taxonomies of a synced property:
- *
- * - category (built-in): "categoria_label", e.g. "Immobili
- *   Commerciali".
- * - custom taxonomies from config 'taxonomies.terms' (Tipologia,
- *   Contratto, Tipologia d'uso, Tipo costruzione), each filled from
- *   its configured feed field.
+ * Fills the custom taxonomies of a synced property (Categoria
+ * Immobile, Tipologia, Contratto, Tipologia d'uso, Tipo
+ * costruzione), each from the feed field configured under
+ * 'taxonomies.terms' in config/plugin.php.
  *
  * Terms are created on demand. On every sync only the terms this
  * class assigned previously are replaced (tracked in post meta), so
@@ -25,8 +22,6 @@ final class PropertyTermsWriter
 {
     public function write(int $postId, Property $property): void
     {
-        $this->writeCategory($postId, $property);
-
         $definitions = Config::get('taxonomies.terms', []);
 
         if (is_array($definitions)) {
@@ -39,38 +34,7 @@ final class PropertyTermsWriter
             }
         }
 
-        $this->detachLegacyTags($postId);
-    }
-
-    private function writeCategory(
-        int $postId,
-        Property $property
-    ): void {
-        $taxonomy = (string) Config::get(
-            'taxonomies.category',
-            'category'
-        );
-
-        $name = $this->clean(
-            $property->data['categoria_label'] ?? null
-        );
-
-        if ($name === '' || !taxonomy_exists($taxonomy)) {
-            return;
-        }
-
-        $termId = $this->ensureTerm($name, $taxonomy);
-
-        if ($termId === null) {
-            return;
-        }
-
-        $this->syncTerms(
-            $postId,
-            $taxonomy,
-            [$termId],
-            PropertyMeta::SYNCED_CATEGORY_IDS
-        );
+        $this->detachLegacyTerms($postId);
     }
 
     /**
@@ -215,32 +179,36 @@ final class PropertyTermsWriter
     }
 
     /**
-     * An earlier version of the plugin assigned tags. Detach the
-     * ones it added (tracked in meta) from the post, once, and drop
-     * the bookkeeping meta. The tag terms themselves are not deleted
-     * because they may be used elsewhere on the site.
+     * Earlier versions of the plugin assigned built-in categories
+     * (including sub-categories) and tags. Detach the ones they
+     * added (tracked in meta) from the post, once, and drop the
+     * bookkeeping meta. The terms themselves are not deleted because
+     * they may be used elsewhere on the site.
      */
-    private function detachLegacyTags(int $postId): void
+    private function detachLegacyTerms(int $postId): void
     {
-        $ids = get_post_meta(
-            $postId,
-            PropertyMeta::SYNCED_TAG_IDS,
-            true
-        );
+        $legacy = [
+            PropertyMeta::SYNCED_CATEGORY_IDS => 'category',
+            PropertyMeta::SYNCED_TAG_IDS => 'post_tag',
+        ];
 
-        if (!is_array($ids)) {
-            return;
+        foreach ($legacy as $metaKey => $taxonomy) {
+            $ids = get_post_meta($postId, $metaKey, true);
+
+            if (!is_array($ids)) {
+                continue;
+            }
+
+            if ($ids !== [] && taxonomy_exists($taxonomy)) {
+                wp_remove_object_terms(
+                    $postId,
+                    array_map('intval', $ids),
+                    $taxonomy
+                );
+            }
+
+            delete_post_meta($postId, $metaKey);
         }
-
-        if ($ids !== [] && taxonomy_exists('post_tag')) {
-            wp_remove_object_terms(
-                $postId,
-                array_map('intval', $ids),
-                'post_tag'
-            );
-        }
-
-        delete_post_meta($postId, PropertyMeta::SYNCED_TAG_IDS);
     }
 
     private function clean(mixed $value): string

@@ -44,17 +44,15 @@ final class PropertyMeta implements ServiceProvider
      * internal bookkeeping, never exposed). Used to replace only the
      * terms the sync previously added when a listing's values
      * change, without touching terms an editor added by hand.
-     * SYNCED_CATEGORY_IDS is for the category taxonomy; custom
-     * taxonomies use SYNCED_TERMS_PREFIX . '<taxonomy>'.
+     * Custom taxonomies use SYNCED_TERMS_PREFIX . '<taxonomy>'.
+     * SYNCED_CATEGORY_IDS and SYNCED_TAG_IDS are legacy (earlier
+     * versions used the built-in category / post_tag): only read to
+     * detach those terms from the post once.
      */
     public const SYNCED_CATEGORY_IDS = 'getrix_synced_category_ids';
 
     public const SYNCED_TERMS_PREFIX = 'getrix_synced_terms_';
 
-    /*
-     * Legacy: an earlier version assigned tags. Only read to detach
-     * them from the post once (see PropertyTermsWriter).
-     */
     public const SYNCED_TAG_IDS = 'getrix_synced_tag_ids';
 
     public function register(Container $container): void

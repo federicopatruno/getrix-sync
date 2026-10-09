@@ -12,20 +12,22 @@ return [
     'rest_namespace' => 'getrix-sync/v1',
 
     /*
-     * Taxonomies filled by the sync (see PropertyTermsWriter).
-     *
-     * 'category' is the built-in WordPress taxonomy and receives
-     * "categoria_label" (e.g. "Immobili Commerciali").
-     *
-     * 'terms' are custom taxonomies registered by PropertyTaxonomies
-     * and attached to the property post type. Each one is filled
-     * from the feed field named in 'field' (looked up in the common,
-     * Commerciale, Residenziale and Terreno data of the listing).
+     * Custom taxonomies filled by the sync (see
+     * PropertyTermsWriter), registered by PropertyTaxonomies and
+     * attached to the property post type only (so they never mix
+     * with the built-in category/tag of regular posts). Each one is
+     * filled from the feed field named in 'field' (looked up in the
+     * common, Commerciale, Residenziale and Terreno data of the
+     * listing).
      */
     'taxonomies' => [
-        'category' => 'category',
-
         'terms' => [
+            'categoria' => [
+                'taxonomy' => 'categoria-immobile',
+                'singular' => 'Categoria Immobile',
+                'plural' => 'Categorie Immobile',
+                'field' => 'categoria_label',
+            ],
             'tipologia' => [
                 'taxonomy' => 'tipologia',
                 'singular' => 'Tipologia',
