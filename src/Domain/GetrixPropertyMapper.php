@@ -80,7 +80,19 @@ final class GetrixPropertyMapper
             'quartiere_zona' => $property['quartiere_zona'] ?? null,
             'localita' => $property['localita'] ?? null,
             'zona' => $property['zona'] ?? null,
-            'strada' => $property['strada'] ?? null,
+            /*
+             * The <Strada> element's text content is itself the
+             * human-readable street type ("via", "viale", "strada",
+             * ...), while its IDStrada attribute is the numeric code
+             * for that same type (confirmed against the real feed:
+             * IDStrada=54 always pairs with text "via", 56 with
+             * "viale", 48 with "strada" -- it is not an address
+             * lookup ID). The ACF field is named "strada_tipo" (not
+             * "strada"), so the key has to match that exactly or the
+             * value silently lands in an orphan meta key instead of
+             * the "Tipo Strada" field.
+             */
+            'strada_tipo' => $property['strada'] ?? null,
             'strada_id' => $property['strada_id'] ?? null,
             'indirizzo' => $property['indirizzo'] ?? null,
             'civico' => $property['civico'] ?? null,
