@@ -13,6 +13,7 @@ use GetrixSync\Feed\GetrixValidator;
 use GetrixSync\WordPress\PropertyAcfWriter;
 use GetrixSync\WordPress\PropertyFeaturedImageWriter;
 use GetrixSync\WordPress\PropertyRepository;
+use GetrixSync\WordPress\PropertyTermsWriter;
 
 final class SyncServiceProvider implements ServiceProvider
 {
@@ -42,6 +43,9 @@ final class SyncServiceProvider implements ServiceProvider
                 ),
                 featuredImageWriter: $container->get(
                     PropertyFeaturedImageWriter::class
+                ),
+                termsWriter: $container->get(
+                    PropertyTermsWriter::class
                 ),
                 lock: new SyncLock(),
             )

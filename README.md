@@ -119,6 +119,25 @@ foto, come URL esterni) resta invece nel campo ripetitore ACF
 Disattivabile impostando `sync.download_images` a `false` in
 `config/plugin.php`.
 
+## Categorie e tag
+
+Il CPT `immobile` usa le tassonomie native `category` e `post_tag`
+(configurabili in `config/plugin.php`, chiave `taxonomies`). Ad ogni
+sincronizzazione `PropertyTermsWriter` assegna:
+
+- **Categoria**: `categoria_label` come categoria padre (es. "Immobili
+  Commerciali") e `tipologia` come sottocategoria (es. "Ufficio"). Il
+  post riceve entrambi i termini. La stessa tipologia sotto categorie
+  padre diverse genera sottocategorie distinte.
+- **Tag**: `contratto_label`, `tipologia_uso_label` e
+  `tipo_costruzione_label`.
+
+I termini vengono creati se mancano. Il plugin sostituisce solo i
+termini che aveva assegnato lui (tracciati nei meta
+`getrix_synced_category_ids` / `getrix_synced_tag_ids`): se un
+annuncio cambia contratto o tipologia il termine vecchio viene
+rimosso, mentre categorie e tag aggiunti a mano non vengono toccati.
+
 ## Architettura
 
 ```

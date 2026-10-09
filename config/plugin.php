@@ -11,6 +11,19 @@ return [
 
     'rest_namespace' => 'getrix-sync/v1',
 
+    /*
+     * Taxonomies attached to the property post type and filled by
+     * the sync (see PropertyTermsWriter): the hierarchical one
+     * receives "categoria_label" as parent term and "tipologia" as
+     * its child; the flat one receives the contratto / tipologia
+     * uso / tipo costruzione labels. They must be already
+     * registered taxonomies (WordPress built-ins by default).
+     */
+    'taxonomies' => [
+        'category' => 'category',
+        'tag' => 'post_tag',
+    ],
+
     'version' => '0.1.0',
 
     'feed' => [

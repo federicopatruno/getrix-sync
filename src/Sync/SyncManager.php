@@ -13,6 +13,7 @@ use GetrixSync\Support\Config;
 use GetrixSync\WordPress\PropertyAcfWriter;
 use GetrixSync\WordPress\PropertyFeaturedImageWriter;
 use GetrixSync\WordPress\PropertyRepository;
+use GetrixSync\WordPress\PropertyTermsWriter;
 use RuntimeException;
 
 final class SyncManager
@@ -25,6 +26,7 @@ final class SyncManager
         private readonly PropertyRepository $repository,
         private readonly PropertyAcfWriter $acfWriter,
         private readonly PropertyFeaturedImageWriter $featuredImageWriter,
+        private readonly PropertyTermsWriter $termsWriter,
         private readonly SyncLock $lock = new SyncLock(),
     ) {}
 
@@ -216,6 +218,11 @@ final class SyncManager
         );
 
         $this->featuredImageWriter->write(
+            $result['post']->ID,
+            $property
+        );
+
+        $this->termsWriter->write(
             $result['post']->ID,
             $property
         );
